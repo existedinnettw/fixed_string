@@ -1,5 +1,6 @@
 # from conans import ConanFile, CMake
 from conan import ConanFile
+from conan.tools.files import copy
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.build import check_min_cppstd, can_run
 from conan.errors import ConanInvalidConfiguration
@@ -16,6 +17,8 @@ class FixedStringConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"build_tests": [True, False], "build_examples": [True, False]}
     default_options = {"build_tests": False, "build_examples": False}
+    exports_sources = "CMakeLists.txt", "include/*"
+    no_copy_source = True
 
     def source(self):
         self.run("git clone https://github.com/unterumarmung/fixed_string.git")
@@ -52,11 +55,13 @@ class FixedStringConan(ConanFile):
             cmake.test()
 
     def package(self):
-        self.copy("*.h", dst="include", src="fixed_string/include")
-        self.copy("*.hpp", dst="include", src="fixed_string/include")
+        copy(self, "*.h", self.source_folder, self.package_folder)
+        copy(self, "*.hpp", self.source_folder, self.package_folder)
 
     def package_info(self):
-        self.cpp_info.libs = ["fixed_string"]
+        # self.cpp_info.libs = ["fixed_string"]
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
 
     def package_id(self):
         self.info.clear()
